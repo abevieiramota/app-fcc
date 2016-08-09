@@ -14,7 +14,7 @@ import org.junit.runners.JUnit4;
 public class TestExtrairProva {
 	
 	@Test
-	public void testQuantidadeDeGrupos() throws IOException {
+	public void testQuantidadeDeGruposTrtAp() throws IOException {
 		
 
 		String filePath = TestExtrairProva.class.getClassLoader()
@@ -42,5 +42,34 @@ public class TestExtrairProva {
 			System.out.println(q.getItemE());
 		}
 	}
+	
+	@Test
+	public void testQuantidadeDeGruposTrtRoAc() throws IOException {
+		
 
+		String filePath = TestExtrairProva.class.getClassLoader()
+				.getResource("2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.pdf").getFile();
+		
+		ExtraiProva ep = new ExtraiProva();
+		
+		Collection<Questao> questoes = ep.extraiQuestoes(new File(filePath));
+		
+		assertEquals(60, questoes.size());
+		
+		for(Questao q: questoes) {
+			
+			System.out.println("Enunciado:");
+			System.out.println(q.getEnunciado());
+			System.out.println("Item A:");
+			System.out.println(q.getItemA());
+			System.out.println("Item B:");
+			System.out.println(q.getItemB());
+			System.out.println("Item C:");
+			System.out.println(q.getItemC());
+			System.out.println("Item D:");
+			System.out.println(q.getItemD());
+			System.out.println("Item E:");
+			System.out.println(q.getItemE());
+		}
+	}
 }
