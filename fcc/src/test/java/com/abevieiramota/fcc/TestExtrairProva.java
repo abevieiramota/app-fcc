@@ -1,22 +1,27 @@
 package com.abevieiramota.fcc;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+
 @RunWith(JUnit4.class)
 public class TestExtrairProva {
 	
 	@Test
-	public void testQuantidadeDeGruposTrtAp() throws IOException {
+	public void testQuantidadeDeQuestoesTrtAp() throws IOException {
 		
-
 		String filePath = TestExtrairProva.class.getClassLoader()
 				.getResource("2015-tre-ap-analista-judiciario-analise-de-sistemas.pdf").getFile();
 		
@@ -25,51 +30,55 @@ public class TestExtrairProva {
 		Collection<Questao> questoes = ep.extraiQuestoes(new File(filePath));
 		
 		assertEquals(60, questoes.size());
-		
-		for(Questao q: questoes) {
-			
-			System.out.println("Enunciado:");
-			System.out.println(q.getEnunciado());
-			System.out.println("Item A:");
-			System.out.println(q.getItemA());
-			System.out.println("Item B:");
-			System.out.println(q.getItemB());
-			System.out.println("Item C:");
-			System.out.println(q.getItemC());
-			System.out.println("Item D:");
-			System.out.println(q.getItemD());
-			System.out.println("Item E:");
-			System.out.println(q.getItemE());
-		}
 	}
 	
 	@Test
-	public void testQuantidadeDeGruposTrtRoAc() throws IOException {
-		
+	public void testQuantidadeDeQuestoesTrtRoAc() throws IOException {
 
 		String filePath = TestExtrairProva.class.getClassLoader()
 				.getResource("2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.pdf").getFile();
 		
 		ExtraiProva ep = new ExtraiProva();
 		
-		Collection<Questao> questoes = ep.extraiQuestoes(new File(filePath));
+		List<Questao> questoes = ep.extraiQuestoes(new File(filePath));
 		
 		assertEquals(60, questoes.size());
 		
-		for(Questao q: questoes) {
-			
-			System.out.println("Enunciado:");
-			System.out.println(q.getEnunciado());
-			System.out.println("Item A:");
-			System.out.println(q.getItemA());
-			System.out.println("Item B:");
-			System.out.println(q.getItemB());
-			System.out.println("Item C:");
-			System.out.println(q.getItemC());
-			System.out.println("Item D:");
-			System.out.println(q.getItemD());
-			System.out.println("Item E:");
-			System.out.println(q.getItemE());
-		}
+		Questao questao1 = questoes.get(0);
+		
+		assertEquals("o fato de a moral dominante classificar como hipócrita toda e qualquer iniciativa amorosa do homem machista.", questao1.getItem('D'));
+	}
+	
+	@Test
+	public void testQuantidadeDeGabaritos() throws IOException {
+		
+		String cargoAnalistaTi = "AN JUD - ÁREA APOIO ESP - ESP TEC DA INFORMAÇÃO";
+		String filePath = TestExtrairProva.class.getClassLoader()
+				.getResource("gab-2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.pdf").getFile();
+		
+		ExtraiGabarito eg = new ExtraiGabarito();
+		
+		Collection<Gabarito> gabaritos = eg.extraiGabaritos(new File(filePath));
+		
+		assertEquals(5, gabaritos.size());
+		
+		Map<String, Gabarito> gabMap = Maps.uniqueIndex(gabaritos, new Function<Gabarito, String>() {
+			public String apply(Gabarito g) {
+				return g.getCargo();
+			}
+		});
+		
+		assertTrue(gabMap.containsKey(cargoAnalistaTi));
+		
+		Gabarito gabarito = gabMap.get(cargoAnalistaTi);
+		
+		assertEquals(60, gabarito.size());
+		
+		assertEquals('B', gabarito.getResposta(1));
+		assertEquals('C', gabarito.getResposta(17));
+		assertEquals('A', gabarito.getResposta(36));
+		assertEquals('A', gabarito.getResposta(46));
+		assertEquals('A', gabarito.getResposta(56));
+		assertEquals('D', gabarito.getResposta(60));
 	}
 }

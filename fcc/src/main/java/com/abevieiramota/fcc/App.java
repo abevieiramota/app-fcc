@@ -2,11 +2,12 @@ package com.abevieiramota.fcc;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 
 /**
  * Hello world!
@@ -15,26 +16,51 @@ import org.apache.pdfbox.text.PDFTextStripper;
 public class App {
 	public static void main(String[] args) throws IOException {
 
-		// extrai
-		PDFTextStripper stripper = new PDFTextStripper();
-
-		String filePath = App.class.getClassLoader()
-				.getResource("2015-tre-ap-analista-judiciario-analise-de-sistemas.pdf").getFile();
-		PDDocument doc = PDDocument.load(new File(filePath));
-
-		String pdfAsText = stripper.getText(doc);
+		String provaFilePath = App.class.getClassLoader()
+				.getResource("2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.pdf").getFile();
 		
-		String regex = "/^\\d{1,2}\\.(.*)\\(A\\)(.*)\\(B\\)(.*)\\(C\\)(.*)\\(D\\)(.*)\\(E\\)(.*)\\s{1,2}\\n/msU";
-
-		Pattern p = Pattern
-				.compile(regex, Pattern.MULTILINE | Pattern.UNIX_LINES);
+		ExtraiProva ep = new ExtraiProva();
 		
-		Matcher m = p.matcher(pdfAsText);
+		Collection<Questao> questoes = ep.extraiQuestoes(new File(provaFilePath));
 		
-		while(m.find()) {
+		String cargoAnalistaTi = "AN JUD - ÁREA APOIO ESP - ESP TEC DA INFORMAÇÃO";
+		String gabaritoFilePath = App.class.getClassLoader()
+				.getResource("gab-2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.pdf").getFile();
+		
+		ExtraiGabarito eg = new ExtraiGabarito();
+		
+		Collection<Gabarito> gabaritos = eg.extraiGabaritos(new File(gabaritoFilePath));
+		
+		Map<String, Gabarito> gabMap = Maps.uniqueIndex(gabaritos, new Function<Gabarito, String>() {
+			public String apply(Gabarito g) {
+				return g.getCargo();
+			}
+		});
+		
+		Gabarito gabarito = gabMap.get(cargoAnalistaTi);
+		
+		Iterator<Questao> questoesIter = questoes.iterator();
+		
+		Character[] itemLabels = new Character[]{'A', 'B', 'C', 'D', 'E'};
+		
+		for(int i = 1; i < questoes.size() + 1; i++) {
 			
-			System.out.println(m.group(1));
+			Questao questao = questoesIter.next();
+			Character resposta = gabarito.getResposta(i);
+			
+			System.out.println("----------------------------");
+			System.out.println("Questão " + i);
+			System.out.println(questao.getEnunciado());
+			for(Character itemLabel: itemLabels) {
+				
+				if(itemLabel.equals(resposta)) {
+					
+					System.out.print("X ");
+				}
+				
+				System.out.print(itemLabel + ") ");
+				System.out.println(questao.getItem(itemLabel));
+			}
 		}
-
 	}
 }

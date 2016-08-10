@@ -3,7 +3,6 @@ package com.abevieiramota.fcc;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,11 +12,11 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 public class ExtraiProva {
 
-	public Collection<Questao> extraiQuestoes(File prova) throws IOException {
+	public List<Questao> extraiQuestoes(File provaFile) throws IOException {
 
 		PDFTextStripper stripper = new PDFTextStripper();
 
-		PDDocument doc = PDDocument.load(prova);
+		PDDocument doc = PDDocument.load(provaFile);
 
 		String pdfAsText = stripper.getText(doc);
 
@@ -32,12 +31,12 @@ public class ExtraiProva {
 		while(m.find()) {
 			
 			Questao questao = new Questao();
-			questao.setEnunciado(m.group(1));
-			questao.setItemA(m.group(2));
-			questao.setItemB(m.group(3));
-			questao.setItemC(m.group(4));
-			questao.setItemD(m.group(5));
-			questao.setItemE(m.group(6));
+			questao.setEnunciado(m.group(1).trim());
+			questao.setItem('A', m.group(2).trim());
+			questao.setItem('B', m.group(3).trim());
+			questao.setItem('C', m.group(4).trim());
+			questao.setItem('D', m.group(5).trim());
+			questao.setItem('E', m.group(6).trim());
 			
 			questoes.add(questao);
 		}
