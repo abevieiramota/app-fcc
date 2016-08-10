@@ -27,6 +27,7 @@ public class ExtraiGabarito {
 	public Collection<Gabarito> extraiGabaritos(File gabaritoFile) throws IOException {
 
 		PDFTextStripper stripper = new PDFTextStripper();
+		stripper.setLineSeparator(System.lineSeparator());
 
 		PDDocument doc = PDDocument.load(gabaritoFile);
 
@@ -41,7 +42,7 @@ public class ExtraiGabarito {
 		while (mCargo.find()) {
 
 			Gabarito gabarito = new Gabarito();
-			String cargo = mCargo.group(1).replace("\n", "").trim();
+			String cargo = mCargo.group(1).replace(System.lineSeparator(), "").trim();
 
 			gabarito.setCargo(cargo);
 			gabaritos.add(gabarito);
