@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -17,44 +16,14 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 
 @RunWith(JUnit4.class)
-public class TestExtrairProva {
-	
-	@Test
-	public void testQuantidadeDeQuestoesTrtAp() throws IOException {
-		
-		String filePath = TestExtrairProva.class.getClassLoader()
-				.getResource("2015-tre-ap-analista-judiciario-analise-de-sistemas.pdf").getFile();
-		
-		ExtraiProva ep = new ExtraiProva();
-		
-		Collection<Questao> questoes = ep.extraiQuestoes(new File(filePath));
-		
-		assertEquals(60, questoes.size());
-	}
-	
-	@Test
-	public void testQuantidadeDeQuestoesTrtRoAc() throws IOException {
-
-		String filePath = TestExtrairProva.class.getClassLoader()
-				.getResource("2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.pdf").getFile();
-		
-		ExtraiProva ep = new ExtraiProva();
-		
-		List<Questao> questoes = ep.extraiQuestoes(new File(filePath));
-		
-		assertEquals(60, questoes.size());
-		
-		Questao questao1 = questoes.get(0);
-		
-		assertEquals("o fato de a moral dominante classificar como hipócrita toda e qualquer iniciativa amorosa do homem machista.", questao1.getItem('D'));
-	}
+public class TestExtraiGabarito {
 	
 	@Test
 	public void testQuantidadeDeGabaritos() throws IOException {
 		
 		String cargoAnalistaTi = "AN JUD - ÁREA APOIO ESP - ESP TEC DA INFORMAÇÃO";
-		String filePath = TestExtrairProva.class.getClassLoader()
-				.getResource("gab-2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.pdf").getFile();
+		String filePath = TestExtraiProva.class.getClassLoader()
+				.getResource("gabarito/gab-2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.pdf").getFile();
 		
 		ExtraiGabarito eg = new ExtraiGabarito();
 		
@@ -81,4 +50,5 @@ public class TestExtrairProva {
 		assertEquals('A', gabarito.getResposta(56));
 		assertEquals('D', gabarito.getResposta(60));
 	}
+
 }

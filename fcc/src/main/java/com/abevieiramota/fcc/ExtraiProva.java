@@ -31,17 +31,22 @@ public class ExtraiProva {
 		while(m.find()) {
 			
 			Questao questao = new Questao();
-			questao.setEnunciado(m.group(1).trim());
-			questao.setItem('A', m.group(2).trim());
-			questao.setItem('B', m.group(3).trim());
-			questao.setItem('C', m.group(4).trim());
-			questao.setItem('D', m.group(5).trim());
-			questao.setItem('E', m.group(6).trim());
+			questao.setEnunciado(trataConteudo(m.group(1)));
+			questao.setItem('A', trataConteudo(m.group(2)));
+			questao.setItem('B', trataConteudo(m.group(3)));
+			questao.setItem('C', trataConteudo(m.group(4)));
+			questao.setItem('D', trataConteudo(m.group(5)));
+			questao.setItem('E', trataConteudo(m.group(6)));
 			
 			questoes.add(questao);
 		}
 
 		return questoes;
+	}
+	
+	private String trataConteudo(String conteudo) {
+		
+		return conteudo.trim().replaceAll("(?<=\\d)o", "º").replaceAll("\\s{2,}", "\n");
 	}
 
 }

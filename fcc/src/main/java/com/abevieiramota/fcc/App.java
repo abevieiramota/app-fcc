@@ -2,12 +2,10 @@ package com.abevieiramota.fcc;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 /**
  * Hello world!
@@ -16,51 +14,40 @@ import com.google.common.collect.Maps;
 public class App {
 	public static void main(String[] args) throws IOException {
 
-		String provaFilePath = App.class.getClassLoader()
-				.getResource("2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.pdf").getFile();
-		
+		Character[] itemLabels = new Character[] { 'A', 'B', 'C', 'D', 'E' };
+
+		String provaFolderPath = App.class.getClassLoader().getResource("prova/").getFile();
+		File folder = new File(provaFolderPath);
+		File[] provas = folder.listFiles();
+
 		ExtraiProva ep = new ExtraiProva();
-		
-		Collection<Questao> questoes = ep.extraiQuestoes(new File(provaFilePath));
-		
-		String cargoAnalistaTi = "AN JUD - ÁREA APOIO ESP - ESP TEC DA INFORMAÇÃO";
-		String gabaritoFilePath = App.class.getClassLoader()
-				.getResource("gab-2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.pdf").getFile();
-		
-		ExtraiGabarito eg = new ExtraiGabarito();
-		
-		Collection<Gabarito> gabaritos = eg.extraiGabaritos(new File(gabaritoFilePath));
-		
-		Map<String, Gabarito> gabMap = Maps.uniqueIndex(gabaritos, new Function<Gabarito, String>() {
-			public String apply(Gabarito g) {
-				return g.getCargo();
-			}
-		});
-		
-		Gabarito gabarito = gabMap.get(cargoAnalistaTi);
-		
-		Iterator<Questao> questoesIter = questoes.iterator();
-		
-		Character[] itemLabels = new Character[]{'A', 'B', 'C', 'D', 'E'};
-		
-		for(int i = 1; i < questoes.size() + 1; i++) {
+
+		for (File prova : provas) {
 			
-			Questao questao = questoesIter.next();
-			Character resposta = gabarito.getResposta(i);
-			
-			System.out.println("----------------------------");
-			System.out.println("Questão " + i);
-			System.out.println(questao.getEnunciado());
-			for(Character itemLabel: itemLabels) {
+			String provaExtraidaFilename = prova.getName().split("\\.")[0] + ".txt";
+			File provaExtraida = new File(provaExtraidaFilename);
+			if(provaExtraida.exists()) {
 				
-				if(itemLabel.equals(resposta)) {
-					
-					System.out.print("X ");
+				provaExtraida.delete();
+			}
+			List<Questao> questoes = ep.extraiQuestoes(prova);
+
+			int n = 1;
+			for (Questao q : questoes) {
+
+				Files.append("Questao " + n++ + "\n", provaExtraida, Charsets.UTF_8);
+				Files.append(q.getEnunciado() + "\n", provaExtraida, Charsets.UTF_8);
+
+				for (Character itemLabel : itemLabels) {
+
+					Files.append(itemLabel + ") ", provaExtraida, Charsets.UTF_8);
+					Files.append(q.getItem(itemLabel) + "\n\n", provaExtraida, Charsets.UTF_8);
 				}
 				
-				System.out.print(itemLabel + ") ");
-				System.out.println(questao.getItem(itemLabel));
+				Files.append("\n", provaExtraida, Charsets.UTF_8);
 			}
+
 		}
+
 	}
 }
