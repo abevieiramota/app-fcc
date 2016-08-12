@@ -1,52 +1,61 @@
 package com.abevieiramota.fcc;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 
 public class ExtraiProva {
 
-	public List<Questao> extraiQuestoes(File provaFile) throws IOException {
+	public Prova extraiProva(File fileProva, File fileGabarito, String cargoDesc) throws Exception {
 
-		PDFTextStripper stripper = new PDFTextStripper();
+		ExtraiQuestoes eq = new ExtraiQuestoes();
+		ExtraiGabarito eg = new ExtraiGabarito();
 
-		PDDocument doc = PDDocument.load(provaFile);
+		List<Questao> questoes = eq.extraiQuestoes(fileProva);
+		List<Gabarito> gabaritos = eg.extraiGabaritos(fileGabarito);
 
-		String pdfAsText = stripper.getText(doc);
+		Collection<Gabarito> gabaritosDoCargo = Collections2.filter(gabaritos, new Predicate<Gabarito>() {
+			@Override
+			public boolean apply(Gabarito g) {
+				return cargoDesc.equals(g.getCargo());
+			}
+		});
 
-		String regex = "^\\d{1,2}\\.(.*?)\\(A\\)(.*?)\\(B\\)(.*?)\\(C\\)(.*?)\\(D\\)(.*?)\\(E\\)(.*?)(?=(\\d{1,2}\\.)|(Caderno\\ de\\ Prova))";
+		if (gabaritosDoCargo.isEmpty()) {
 
-		Pattern p = Pattern.compile(regex, Pattern.MULTILINE | Pattern.UNIX_LINES | Pattern.DOTALL);
-
-		Matcher m = p.matcher(pdfAsText);
-		
-		List<Questao> questoes = new ArrayList<Questao>();
-		
-		while(m.find()) {
-			
-			Questao questao = new Questao();
-			questao.setEnunciado(trataConteudo(m.group(1)));
-			questao.setItem('A', trataConteudo(m.group(2)));
-			questao.setItem('B', trataConteudo(m.group(3)));
-			questao.setItem('C', trataConteudo(m.group(4)));
-			questao.setItem('D', trataConteudo(m.group(5)));
-			questao.setItem('E', trataConteudo(m.group(6)));
-			
-			questoes.add(questao);
+			throw new Exception("Não foi encontrado gabarito para o cargo informado: " + cargoDesc);
 		}
 
-		return questoes;
-	}
-	
-	private String trataConteudo(String conteudo) {
+		if (gabaritosDoCargo.size() > 1) {
+
+			throw new Exception("Foi encontrado mais de um gabarito para o cargo informado: " + cargoDesc);
+		}
+
+		Gabarito gabaritoDoCargo = gabaritosDoCargo.iterator().next();
+
+		if (questoes.size() != gabaritoDoCargo.size()) {
+
+			throw new Exception(String.format("Há %d questões na prova e % questões no gabarito.", questoes.size(),
+					gabaritoDoCargo.size()));
+		}
+
+		Prova prova = new Prova();
 		
-		return conteudo.trim().replaceAll("(?<=\\d)o", "º").replaceAll("\\s{2,}", "\n");
+		for (int i = 0; i < questoes.size(); i++) {
+
+			Questao questao = questoes.get(i);
+			int numeroDaQuestao = i + 1;
+			char resposta = gabaritoDoCargo.getResposta(numeroDaQuestao);
+			
+			prova.addQuestao(numeroDaQuestao, questao);
+			prova.addGabarito(numeroDaQuestao, resposta);
+			
+		}
+
+		return prova;
 	}
 
 }

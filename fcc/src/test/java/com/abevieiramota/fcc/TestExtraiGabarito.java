@@ -22,7 +22,7 @@ public class TestExtraiGabarito {
 	public void testQuantidadeDeGabaritos() throws IOException {
 		
 		String cargoAnalistaTi = "AN JUD - ÁREA APOIO ESP - ESP TEC DA INFORMAÇÃO";
-		String filePath = TestExtraiProva.class.getClassLoader()
+		String filePath = TestExtraiQuestoes.class.getClassLoader()
 				.getResource("gabarito/gab-2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.pdf").getFile();
 		
 		ExtraiGabarito eg = new ExtraiGabarito();

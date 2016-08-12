@@ -3,7 +3,6 @@ package com.abevieiramota.fcc;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -24,48 +23,50 @@ public class ExtraiGabarito {
 	 * @return
 	 * @throws IOException
 	 */
-	public Collection<Gabarito> extraiGabaritos(File gabaritoFile) throws IOException {
+	public List<Gabarito> extraiGabaritos(File gabaritoFile) throws IOException {
 
 		PDFTextStripper stripper = new PDFTextStripper();
 		stripper.setLineSeparator(System.lineSeparator());
 
-		PDDocument doc = PDDocument.load(gabaritoFile);
-
-		String pdfAsText = stripper.getText(doc);
-
-		String regexCargo = "^Cargo\\ ou\\ opção\\ \\w\\d{2}\\ -\\ (.*?)\\nTipo\\ gabarito\\ \\d";
-		Pattern pCargo = Pattern.compile(regexCargo, Pattern.MULTILINE | Pattern.UNIX_LINES | Pattern.DOTALL);
-		Matcher mCargo = pCargo.matcher(pdfAsText);
-
 		List<Gabarito> gabaritos = new ArrayList<Gabarito>();
 
-		while (mCargo.find()) {
+		try (PDDocument doc = PDDocument.load(gabaritoFile)) {
 
-			Gabarito gabarito = new Gabarito();
-			String cargo = mCargo.group(1).replace(System.lineSeparator(), "").trim();
+			String pdfAsText = stripper.getText(doc);
 
-			gabarito.setCargo(cargo);
-			gabaritos.add(gabarito);
-		}
+			String regexCargo = "^Cargo\\ ou\\ opção\\ \\w\\d{2}\\ -\\ (.*?)\\nTipo\\ gabarito\\ \\d";
+			Pattern pCargo = Pattern.compile(regexCargo, Pattern.MULTILINE | Pattern.UNIX_LINES | Pattern.DOTALL);
+			Matcher mCargo = pCargo.matcher(pdfAsText);
 
-		String regexGabarito = "^(\\d{3})\\ -\\ (\\w)";
-		Pattern pGabarito = Pattern.compile(regexGabarito, Pattern.MULTILINE | Pattern.UNIX_LINES | Pattern.DOTALL);
-		Matcher mGabarito = pGabarito.matcher(pdfAsText);
+			while (mCargo.find()) {
 
-		Iterator<Gabarito> gabaritosIter = gabaritos.iterator();
+				Gabarito gabarito = new Gabarito();
+				String cargo = mCargo.group(1).replace(System.lineSeparator(), "").trim();
 
-		Gabarito gabaritoAtual = null;
-		while (mGabarito.find()) {
-
-			int numeroQuestao = Integer.parseInt(mGabarito.group(1));
-			char questaoResposta = mGabarito.group(2).charAt(0);
-
-			if (numeroQuestao == 1) {
-
-				gabaritoAtual = gabaritosIter.next();
+				gabarito.setCargo(cargo);
+				gabaritos.add(gabarito);
 			}
 
-			gabaritoAtual.addResposta(questaoResposta);
+			String regexGabarito = "^(\\d{3})\\ -\\ (\\w)";
+			Pattern pGabarito = Pattern.compile(regexGabarito, Pattern.MULTILINE | Pattern.UNIX_LINES | Pattern.DOTALL);
+			Matcher mGabarito = pGabarito.matcher(pdfAsText);
+
+			Iterator<Gabarito> gabaritosIter = gabaritos.iterator();
+
+			Gabarito gabaritoAtual = null;
+			while (mGabarito.find()) {
+
+				int numeroQuestao = Integer.parseInt(mGabarito.group(1));
+				char questaoResposta = mGabarito.group(2).charAt(0);
+
+				if (numeroQuestao == 1) {
+
+					gabaritoAtual = gabaritosIter.next();
+				}
+
+				gabaritoAtual.addResposta(questaoResposta);
+			}
+
 		}
 
 		return gabaritos;
