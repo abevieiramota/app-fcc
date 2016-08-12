@@ -16,13 +16,14 @@ public class ExtraiQuestoes {
 	private static Pattern questaoPattern = Pattern.compile(questaoRegex,
 			Pattern.MULTILINE | Pattern.UNIX_LINES | Pattern.DOTALL);
 
-	public List<Questao> extraiQuestoes(File provaFile) throws IOException {
+	public List<Questao> extraiQuestoes(File fileProva) throws IOException {
 
 		PDFTextStripper stripper = new PDFTextStripper();
 		
 		List<Questao> questoes = new ArrayList<Questao>();
 		
-		try (PDDocument doc = PDDocument.load(provaFile)) {
+		try (PDDocument doc = PDDocument.load(fileProva)) {
+			
 			String pdfAsText = stripper.getText(doc);
 
 			Matcher m = questaoPattern.matcher(pdfAsText);

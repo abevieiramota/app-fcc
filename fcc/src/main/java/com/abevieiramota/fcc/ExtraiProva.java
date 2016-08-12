@@ -43,16 +43,16 @@ public class ExtraiProva {
 		}
 
 		Prova prova = new Prova();
-		
+
 		for (int i = 0; i < questoes.size(); i++) {
 
 			Questao questao = questoes.get(i);
 			int numeroDaQuestao = i + 1;
 			char resposta = gabaritoDoCargo.getResposta(numeroDaQuestao);
-			
+
 			prova.addQuestao(numeroDaQuestao, questao);
 			prova.addGabarito(numeroDaQuestao, resposta);
-			
+
 		}
 
 		return prova;
