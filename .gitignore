@@ -18,3 +18,5 @@ target/
 
 fcc/*.txt
 jdbc.properties
+*.pyc
+.cache
