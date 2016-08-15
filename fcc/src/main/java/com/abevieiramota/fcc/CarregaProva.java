@@ -1,15 +1,17 @@
 package com.abevieiramota.fcc;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Properties;
 
 public class CarregaProva {
 
-	private static final String SQL_INSERT_QUESTAO = "insert into questao (enunciado, \"itemA\", \"itemB\", \"itemC\", \"itemD\", \"itemE\", resposta) values (?, ?, ?, ?, ?, ?, ?)";
+	private static final String SQL_INSERT_QUESTAO = "insert into questoes_question (enunciado, \"itemA\", \"itemB\", \"itemC\", \"itemD\", \"itemE\", resposta, \"temErro\", created, publish, updated, status) values (?, ?, ?, ?, ?, ?, ?, false, now(), now(), now(), 'draft')";
 
 	public static void main(String[] args) throws Exception {
 
@@ -30,12 +32,12 @@ public class CarregaProva {
 
 		// DB
 		Properties jdbcProperties = new Properties();
-		
-		try(InputStream is = CarregaProva.class.getClassLoader().getResourceAsStream("jdbc.properties")) {
-			
+
+		try (InputStream is = CarregaProva.class.getClassLoader().getResourceAsStream("jdbc.properties")) {
+
 			jdbcProperties.load(is);
 		}
-		
+
 		String jdbcUrl = jdbcProperties.getProperty("JDBC_URL");
 		String jdbcUser = jdbcProperties.getProperty("JDBC_USER");
 		String jdbcPassword = jdbcProperties.getProperty("JDBC_PASSWORD");
@@ -57,7 +59,11 @@ public class CarregaProva {
 					ps.setString(6, questao.getItem('E'));
 					ps.setString(7, resposta.toString());
 
-					ps.execute();
+					try {
+						ps.execute();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
