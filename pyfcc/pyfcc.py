@@ -1,40 +1,57 @@
-from bs4 import BeautifulSoup
 import re
+from collections import namedtuple
+from bs4 import BeautifulSoup
 
 ini_questao = re.compile(r'^(\d{1,2})\.')
 ini_item = re.compile(r'^\(([A-E])\)')
 end_item_E = re.compile(r'Caderno de Prova')
 
-soup = BeautifulSoup(open('pdf2htmlEX/2016-trt-14-regiao-ro-e-ac-analista-judiciario-tecnologia-da-informacao.html'),'html.parser')
+soup = BeautifulSoup(open('pdf2htmlEX/2016-trt-' +
+                          '14-regiao-ro-e-ac-analista-judiciario-tecnologia' +
+                          '-da-informacao.html'), 'html.parser')
 
-divs_questoes = {}
+Questao = namedtuple('Questao', 'enunciado')
 
-questao = None
-pos_item = False
 
-for div in soup.find_all('div'):
+class Prova:
 
-    is_ini_questao = ini_questao.match(div.get_text())
+    def __init__(self, filepath):
 
-    if is_ini_questao:
+        with open(filepath) as prova:
 
-        questao = is_ini_questao.group(1)
-        divs_questoes[questao] = []
-        pos_item = False
+            soup = BeautifulSoup(prova, 'html.parser')
 
-    if ini_item.match(div.get_text()):
+            self.divs_questoes = {}
 
-        pos_item = True
+            questao = None
+            pos_item = False
 
-    if not div.get_text().strip() and pos_item:
+            for div in soup.find_all('div'):
 
-        questao = None
+                is_ini_questao = ini_questao.match(div.get_text())
 
-    if questao:
+                if is_ini_questao:
 
-        divs_questoes[questao].append(div)
+                    questao = is_ini_questao.group(1)
+                    self.divs_questoes[questao] = []
+                    pos_item = False
 
-# Testando pytest
-def hello_world():
+                if ini_item.match(div.get_text()):
 
-    return "Hello World!"
+                    pos_item = True
+
+                if not div.get_text().strip() and pos_item:
+
+                    questao = None
+
+                if questao:
+
+                    self.divs_questoes[questao].append(div)
+
+    def __getitem__(self, i):
+
+        return Questao(enunciado=self.divs_questoes[str(i)][0].get_text())
+
+        # return Questao(enunciado='Entre os graves equívocos que podem'
+        #                          ' se incluir na relação entre um homem'
+        #                          ' e uma mulher destaca-se, no texto,')
